@@ -171,13 +171,20 @@ el.sendEmail.addEventListener('click', () => capture({ mode: 'now', channel: 'em
 el.sendLast.addEventListener('click', () => capture({ mode: 'last', trigger: 'touch' }));
 el.wheel.addEventListener('click', () => capture({ mode: 'now', trigger: 'button' }));
 
-// The space bar stands in for a physical steering wheel button.
+// The space bar stands in for a physical steering wheel button. It does so
+// even when an on-screen button has focus (otherwise Space would re-press
+// whatever was clicked last); Enter still activates a focused button.
+const isTypingTarget = (target) =>
+  target instanceof HTMLElement && Boolean(target.closest('input, textarea, select'));
+
 document.addEventListener('keydown', (event) => {
-  if (event.code !== 'Space' || event.repeat) return;
-  const target = event.target;
-  if (target instanceof HTMLElement && target.closest('input, textarea, select, button, a')) return;
+  if (event.code !== 'Space' || isTypingTarget(event.target)) return;
   event.preventDefault();
-  capture({ mode: 'now', trigger: 'button' });
+  if (!event.repeat) capture({ mode: 'now', trigger: 'button' });
+});
+// Buttons activate on Space keyup, so that has to be cancelled as well.
+document.addEventListener('keyup', (event) => {
+  if (event.code === 'Space' && !isTypingTarget(event.target)) event.preventDefault();
 });
 
 // ---------- Voice ----------

@@ -11,9 +11,40 @@ export interface Schedule {
   lastAdBefore(timeMs: number): AdAiring | null;
 }
 
+const AD_FIELDS = ['id', 'advertiser', 'headline', 'offer', 'url', 'phone'] as const;
+
+/** Throws a message naming the entry and field if a broadcast log is malformed. */
+export function assertValidLog(log: unknown): asserts log is LogItem[] {
+  if (!Array.isArray(log) || log.length === 0) {
+    throw new Error('Broadcast log must be a non-empty list');
+  }
+  log.forEach((entry: unknown, index) => {
+    const fail = (field: string): never => {
+      throw new Error(`Broadcast log entry ${index + 1}: missing or invalid "${field}"`);
+    };
+    const item = (entry ?? {}) as Record<string, unknown>;
+    const text = (value: unknown) => typeof value === 'string' && value.trim() !== '';
+    if (typeof item.durationSec !== 'number' || !(item.durationSec > 0)) fail('durationSec');
+    if (item.kind === 'song') {
+      if (!text(item.title)) fail('title');
+      if (!text(item.artist)) fail('artist');
+    } else if (item.kind === 'ad') {
+      const ad = (item.ad ?? {}) as Record<string, unknown>;
+      for (const field of AD_FIELDS) if (!text(ad[field])) fail(field);
+      for (const field of ['promoCode', 'expires']) {
+        if (ad[field] !== undefined && !text(ad[field])) fail(field);
+      }
+    } else {
+      fail('kind');
+    }
+  });
+}
+
 export function loadBroadcastLog(): LogItem[] {
   const path = fileURLToPath(new URL('./data/broadcast-log.json', import.meta.url));
-  return JSON.parse(readFileSync(path, 'utf8')) as LogItem[];
+  const log: unknown = JSON.parse(readFileSync(path, 'utf8'));
+  assertValidLog(log);
+  return log;
 }
 
 /** A broadcast log that loops forever starting at `epochMs`. */

@@ -79,6 +79,12 @@ try {
   await page.locator('#setup-status', { hasText: 'Saved' }).waitFor();
   check((await page.locator('#badge-sms').innerText()).includes('Preview'), 'text channel shows a Preview mode badge');
 
+  // 2b. Focus is still on the Save button; the space bar must act as the wheel
+  // button, not press Save again.
+  await page.keyboard.press('Space');
+  await banner.filter({ hasText: 'No ad playing right now' }).waitFor({ timeout: 3000 });
+  check(true, 'space bar works as the wheel button even when a button has focus');
+
   // 3. The ad comes on air.
   await page.locator('#ad-card').waitFor({ state: 'visible', timeout: 40_000 });
   check((await page.locator('#send-phone').innerText()).trim() === 'Send to phone', 'ad card shows a Send to phone button');
@@ -113,7 +119,6 @@ try {
   // 8. After the grace period the card goes away; the wheel button finds no ad.
   await page.locator('#ad-card').waitFor({ state: 'hidden', timeout: 60_000 });
   check(await page.locator('#send-last').isVisible(), 'Send last ad is offered once the card is gone');
-  await page.locator('body').click({ position: { x: 5, y: 5 } });
   await page.keyboard.press('Space');
   await banner.filter({ hasText: 'No ad playing right now' }).waitFor();
   check(true, 'the steering wheel button reports no ad during a song');

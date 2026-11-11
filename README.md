@@ -32,8 +32,9 @@ Open http://localhost:3000.
 4. Tap it again: it says "Already sent" rather than texting you twice.
 5. Wait for the ad to finish. The card stays for 30 seconds labelled
    "Just heard", so a slow reaction still catches it.
-6. During a song, press the space bar (the steering-wheel button). It says
-   no ad is playing. **Send last ad** fetches the most recent one.
+6. Once the card has gone and a song is showing, press the space bar (the
+   steering-wheel button). It says no ad is playing. **Send last ad**
+   fetches the most recent one.
 7. Tap the microphone and say "send to my phone" (Chrome, Edge or Safari),
    or tap one of the phrases next to it.
 
@@ -97,6 +98,10 @@ press (tap / wheel button / voice)
 
 The press is timestamped in the browser at the moment of the press, so a
 slow connection cannot change which ad it matches.
+
+The server listens on this computer only. To open the demo from another
+device on your network, set `HOST=0.0.0.0` in `.env`; anyone on that network
+can then read the saved phone number and email.
 
 Your phone number and email are stored in `data/profile.json` on the
 machine running the demo and are sent only to the delivery service, only

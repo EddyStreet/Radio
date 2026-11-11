@@ -10,6 +10,8 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 if (existsSync(`${root}.env`)) process.loadEnvFile(`${root}.env`);
 
 const port = Number(process.env.PORT) || 3000;
+// Loopback only by default: the API returns the saved phone number and email.
+const host = process.env.HOST || '127.0.0.1';
 const providers = createProviders(process.env);
 const schedule = createSchedule(loadBroadcastLog(), Date.now());
 
@@ -23,7 +25,7 @@ const app = createApp({
   publicDir: `${root}public`,
 });
 
-app.listen(port, () => {
+app.listen(port, host, () => {
   const mode = (live: boolean) => (live ? 'live' : 'preview mode (no keys set)');
   console.log(`Radio ad capture demo: http://localhost:${port}`);
   console.log(`  Text messages: ${mode(providers.sms.live)}`);

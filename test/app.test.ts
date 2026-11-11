@@ -7,7 +7,7 @@ import { createApp } from '../src/app.js';
 import { createCapture } from '../src/capture.js';
 import { createProfileStore } from '../src/profile.js';
 import { createSchedule } from '../src/schedule.js';
-import type { Channel, DeliveryResult, OutboundMessage, Provider } from '../src/types.js';
+import type { Ad, Channel, DeliveryResult, OutboundMessage, Provider } from '../src/types.js';
 import { EPOCH, LOG } from './fixtures.js';
 
 const SONG_1 = EPOCH + 5_000;
@@ -285,5 +285,51 @@ describe('messages and static files', () => {
     const res = await request(app).get('/');
     expect(res.status).toBe(200);
     expect(res.text).toContain('car screen');
+  });
+});
+
+describe('unexpected failures', () => {
+  function appWithBrokenAd() {
+    const dir = mkdtempSync(join(tmpdir(), 'radio-app-'));
+    // An ad missing its phone number, as a hand-edited broadcast log might contain.
+    const broken = { id: 'b1', advertiser: 'Broken', headline: 'H', offer: 'O', url: 'https://example.com' } as Ad;
+    const schedule = createSchedule([{ kind: 'ad', durationSec: 60, ad: broken }], EPOCH);
+    return createApp({
+      schedule,
+      capture: createCapture(schedule),
+      providers: { sms: stub('sms'), email: stub('email') },
+      profiles: createProfileStore(join(dir, 'profile.json')),
+      now: () => now,
+      station: 'KTEST',
+      publicDir: dir,
+    });
+  }
+
+  it('answers 500 instead of hanging when composing a message throws, and allows a retry', async () => {
+    const broken = appWithBrokenAd();
+    await request(broken).put('/api/profile').send({ email: 'd@example.com' });
+    const body = { pressedAt: now, mode: 'now', trigger: 'touch' };
+    const first = await request(broken).post('/api/capture').send(body).timeout(2000);
+    expect(first.status).toBe(500);
+    expect(first.body).toEqual({ error: 'server_error' });
+    const second = await request(broken).post('/api/capture').send(body).timeout(2000);
+    expect(second.status).toBe(500); // not already_sent: the claim was released
+  });
+
+  it('reports a provider that throws as a failed channel', async () => {
+    await saveProfile();
+    now = IN_AD;
+    failing.add('sms');
+    const throwing: Provider = { live: true, send: async () => { throw new Error('boom'); } };
+    const dir = mkdtempSync(join(tmpdir(), 'radio-app-'));
+    const schedule = createSchedule(LOG, EPOCH);
+    const profiles = createProfileStore(join(dir, 'profile.json'));
+    profiles.save({ phone: '+15555550100', defaultChannels: ['sms'] });
+    const app2 = createApp({
+      schedule, capture: createCapture(schedule), providers: { sms: throwing, email: stub('email') },
+      profiles, now: () => now, station: 'KTEST', publicDir: dir,
+    });
+    const res = await request(app2).post('/api/capture').send({ pressedAt: now, mode: 'now', trigger: 'touch' });
+    expect(res.body.results).toEqual([{ channel: 'sms', status: 'failed', detail: 'boom' }]);
   });
 });

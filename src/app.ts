@@ -129,7 +129,15 @@ export function createApp(deps: AppDeps): express.Express {
     res.json({ profile: result.profile });
   });
 
-  app.post('/api/capture', async (req, res) => {
+  app.post('/api/capture', async (req, res, next) => {
+    try {
+      await handleCapture(req, res);
+    } catch (err) {
+      next(err); // Express 4 does not catch async errors on its own.
+    }
+  });
+
+  async function handleCapture(req: express.Request, res: express.Response): Promise<void> {
     const request = parseCaptureRequest(req.body, now());
     if (!request) {
       res.status(400).json({ error: 'bad_request' });
@@ -163,7 +171,13 @@ export function createApp(deps: AppDeps): express.Express {
     for (const channel of pending) capture.markSent(airing, channel);
     const results = await Promise.all(
       pending.map(async (channel) => {
-        const message = buildMessage(channel, contactFor(profile, channel)!, airing, request.pressedAt);
+        let message: OutboundMessage;
+        try {
+          message = buildMessage(channel, contactFor(profile, channel)!, airing, request.pressedAt);
+        } catch (err) {
+          capture.unmarkSent(airing, channel);
+          throw err;
+        }
         let result: DeliveryResult;
         try {
           result = await providers[channel].send(message);
@@ -188,7 +202,7 @@ export function createApp(deps: AppDeps): express.Express {
     );
     messages.length = Math.min(messages.length, MAX_LOGGED_MESSAGES);
     res.json({ outcome: 'sent', ad: summary(airing.ad), late, results });
-  });
+  }
 
   app.get('/api/messages', (_req, res) => {
     res.json({ messages });
@@ -207,7 +221,7 @@ export function createApp(deps: AppDeps): express.Express {
       res.status(status).json({ error: 'bad_request' });
       return;
     }
-    console.error(err);
+    console.error('Request failed:', err instanceof Error ? err.message : err);
     res.status(500).json({ error: 'server_error' });
   });
 

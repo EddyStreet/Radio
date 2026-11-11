@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createSchedule, loadBroadcastLog } from '../src/schedule.js';
+import { assertValidLog, createSchedule, loadBroadcastLog } from '../src/schedule.js';
 import { EPOCH, LOG } from './fixtures.js';
 
 const s = createSchedule(LOG, EPOCH);
@@ -24,4 +24,16 @@ describe('schedule', () => {
     expect(s.lastAdBefore(1_025_000)!.startMs).toBe(1_020_000));
   it('loads the bundled log with at least one ad', () =>
     expect(loadBroadcastLog().some((i) => i.kind === 'ad')).toBe(true));
+
+  it('accepts a well-formed log', () => expect(() => assertValidLog(LOG)).not.toThrow());
+  it('rejects an ad with a missing field, naming the entry and field', () => {
+    const bad = [{ kind: 'ad', durationSec: 15, ad: { id: 'x', advertiser: 'A', headline: 'H', offer: 'O', url: 'https://example.com' } }];
+    expect(() => assertValidLog(bad)).toThrow(/entry 1.*phone/);
+  });
+  it('rejects an entry with no positive duration', () =>
+    expect(() => assertValidLog([{ kind: 'song', title: 'T', artist: 'A', durationSec: 0 }])).toThrow(/entry 1.*durationSec/));
+  it('rejects a log that is not a non-empty list', () => {
+    expect(() => assertValidLog([])).toThrow();
+    expect(() => assertValidLog({})).toThrow();
+  });
 });
