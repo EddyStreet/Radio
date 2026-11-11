@@ -1,0 +1,27 @@
+[
+  { "kind": "song", "title": "Coastline Drive", "artist": "The Lanterns", "durationSec": 20 },
+  { "kind": "ad", "durationSec": 15, "ad": {
+    "id": "harbor-tire", "advertiser": "Harbor Tire & Auto", "headline": "Winter tire sale",
+    "offer": "Buy 3 tires, get the 4th free. Free installation this month.",
+    "url": "https://example.com/harbor-tire", "phone": "+15555550142",
+    "promoCode": "RADIO4", "expires": "2026-12-31" } },
+  { "kind": "song", "title": "Paper Satellites", "artist": "Nova Reyes", "durationSec": 22 },
+  { "kind": "song", "title": "Slow Train Home", "artist": "Marlowe & Finch", "durationSec": 20 },
+  { "kind": "ad", "durationSec": 15, "ad": {
+    "id": "luna-pizza", "advertiser": "Luna's Wood-Fired Pizza", "headline": "Two large pizzas for $22",
+    "offer": "Two large pizzas for $22, pickup or delivery, Monday to Thursday.",
+    "url": "https://example.com/lunas", "phone": "+15555550117", "promoCode": "DRIVE22" } },
+  { "kind": "song", "title": "Glass Harbor", "artist": "Ada Quill", "durationSec": 25 },
+  { "kind": "ad", "durationSec": 15, "ad": {
+    "id": "summit-dental", "advertiser": "Summit Family Dental", "headline": "New patient exam, $59",
+    "offer": "New patient exam, cleaning and X-rays for $59. Evening and Saturday appointments.",
+    "url": "https://example.com/summit-dental", "phone": "+15555550188" } },
+  { "kind": "song", "title": "Northbound", "artist": "The Lanterns", "durationSec": 20 },
+  { "kind": "song", "title": "Half Past Blue", "artist": "June Okafor", "durationSec": 22 },
+  { "kind": "ad", "durationSec": 15, "ad": {
+    "id": "evergreen-solar", "advertiser": "Evergreen Home Solar", "headline": "Free home solar estimate",
+    "offer": "Free home solar estimate and $500 off installation booked before year end.",
+    "url": "https://example.com/evergreen-solar", "phone": "+15555550163",
+    "promoCode": "SUN500", "expires": "2026-12-31" } },
+  { "kind": "song", "title": "Lighthouse Radio", "artist": "Marlowe & Finch", "durationSec": 23 }
+]

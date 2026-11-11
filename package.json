@@ -1,0 +1,26 @@
+{
+  "name": "radio-ad-capture-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Demo: send the radio ad that is on air to your phone with one press",
+  "engines": { "node": ">=20.12" },
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "test": "vitest run",
+    "e2e": "node test/e2e.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "tsx": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.0",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.0.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
