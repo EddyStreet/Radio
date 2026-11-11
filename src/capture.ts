@@ -33,6 +33,10 @@ export function createCapture(schedule: Schedule) {
     markSent(airing: AdAiring, channel: Channel): void {
       sent.add(key(airing, channel));
     },
+    /** Release a claim after a failed delivery so the user can retry. */
+    unmarkSent(airing: AdAiring, channel: Channel): void {
+      sent.delete(key(airing, channel));
+    },
   };
 }
 
