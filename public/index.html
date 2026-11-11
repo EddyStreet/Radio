@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radio Ad Capture Demo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="page-header">
+    <h1>Radio Ad Capture</h1>
+    <p>When an ad plays, one press sends its details to your phone.</p>
+  </header>
+
+  <main class="layout">
+    <section class="car" aria-label="Car screen">
+      <div class="bezel">
+        <div class="screen">
+          <div class="status-bar">
+            <span class="source">FM</span>
+            <span id="station" class="station"></span>
+            <span id="clock" class="clock"></span>
+          </div>
+
+          <div id="banner" class="banner" role="status" aria-live="polite" hidden></div>
+
+          <div id="song-view" class="view">
+            <div class="art" aria-hidden="true"></div>
+            <div class="track">
+              <p class="eyebrow">Now playing</p>
+              <p id="now-title" class="title"></p>
+              <p id="now-artist" class="artist"></p>
+              <div class="progress" aria-hidden="true"><div id="song-progress" class="progress-fill"></div></div>
+            </div>
+          </div>
+
+          <div id="ad-card" class="view ad-card" hidden>
+            <div class="ad-text">
+              <p id="ad-label" class="eyebrow ad-label">Advertisement</p>
+              <p id="ad-advertiser" class="advertiser"></p>
+              <p id="ad-headline" class="headline"></p>
+              <div class="progress" aria-hidden="true"><div id="ad-progress" class="progress-fill"></div></div>
+            </div>
+            <div class="ad-actions">
+              <button id="send-phone" type="button" class="btn btn-primary">Send to phone</button>
+              <button id="send-email" type="button" class="btn btn-secondary">Email</button>
+            </div>
+          </div>
+
+          <div class="dock">
+            <button id="mic" type="button" class="mic" aria-pressed="false" aria-label="Voice command">
+              <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V22h2v-3.08A7 7 0 0 0 19 12h-2Z"/></svg>
+            </button>
+            <div class="phrases">
+              <p id="voice-hint" class="voice-hint">Say or tap a command</p>
+              <div id="phrase-chips" class="chips"></div>
+            </div>
+            <button id="send-last" type="button" class="btn btn-quiet" hidden>Send last ad</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="wheel">
+        <button id="wheel-button" type="button" class="wheel-button" aria-label="Steering wheel button">
+          <span aria-hidden="true">●</span>
+        </button>
+        <p>Steering wheel button. Click it or press the <kbd>Space</kbd> bar.</p>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="phone" aria-label="Phone">
+        <h2>Your phone</h2>
+        <p id="phone-empty" class="muted">Messages you send from the car appear here.</p>
+        <ol id="phone-messages" class="messages"></ol>
+      </section>
+
+      <section class="setup" aria-label="Setup">
+        <h2>Setup</h2>
+        <p class="muted">Done once while parked. Nothing is typed while driving.</p>
+        <form id="setup-form" novalidate>
+          <label for="phone">Mobile number <span id="badge-sms" class="badge"></span></label>
+          <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+15555550100" aria-describedby="error-phone">
+          <p id="error-phone" class="error"></p>
+
+          <label for="email">Email, optional <span id="badge-email" class="badge"></span></label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" aria-describedby="error-email">
+          <p id="error-email" class="error"></p>
+
+          <fieldset>
+            <legend>The steering wheel button and “Send me this ad” use</legend>
+            <label class="radio"><input type="radio" name="default" value="sms" checked> Text</label>
+            <label class="radio"><input type="radio" name="default" value="email"> Email</label>
+            <label class="radio"><input type="radio" name="default" value="both"> Both</label>
+          </fieldset>
+          <p id="error-defaultChannels" class="error"></p>
+
+          <div class="form-row">
+            <button type="submit" class="btn btn-save">Save</button>
+            <span id="setup-status" class="muted" role="status"></span>
+          </div>
+        </form>
+      </section>
+    </aside>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
